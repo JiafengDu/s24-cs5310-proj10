@@ -278,6 +278,7 @@ void point_copy(Point *to, Point *from);
 void point_draw(Point *p, Image *src, Color c);
 void point_drawf(Point *p, Image *src, FPixel c);
 void point_print(Point *p, FILE *fp);
+void point_mid(Point *p1, Point *p2, Point *mid);
 
 /* Line functions */
 void line_set2D(Line *l, double x0, double y0, double x1, double y1);
@@ -381,6 +382,7 @@ void module_cube(Module *md, int solid);
 void module_pyramid( Module *md );
 void module_cylinder( Module *mod, int sides );
 void module_tetrahedron( Module *md );
+void module_sphere( Module *md, int divisions);
 
 /* Shading/Color Module Functions */
 void module_color(Module *md, Color *c);

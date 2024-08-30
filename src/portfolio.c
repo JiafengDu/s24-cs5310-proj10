@@ -1,127 +1,107 @@
 /*
-  Jiafeng Du
-  Summer 2024
+  Bruce A. Maxwell
+  Fall 2014
 
-  draw cube using graphics
+  Example code for drawing a single cube
+
+  C Version
 */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
 #include "graphics.h"
 
-void setBlack( Image *src ) {
-  int i, j;
-  Color White;
-
-  color_set(&White, 0.0, 0.0, 0.0);
-
-  for(i=0;i<src->rows;i++) {
-    for(j=0;j<src->cols;j++) {
-      image_setColor( src, i, j, White );
-    }
-  }
-}
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   Image *src;
-  Module *scene;
-  Module *formation;
-  Module *creature;
-  Module *head;
-  Module *body;
-  Module *legs;
-  View3D view;
-  Matrix vtm, gtm;
+  Matrix VTM;
+  Matrix GTM;
+  Module *cube;
+  int rows = 360;
+  int cols = 640;
+
+  Color White;
+  Color Grey;
+	Color DkGrey;
+
   DrawState *ds;
-  Color blue = {{0.3, 0.3, 1}};
+  View3D view;
 
-  // point_set3D( &(view.vrp), 80, 30, 40 );
-  // vector_set( &(view.vpn), -1, -0.1, -0.1 );
-  // vector_set( &(view.vup), 0, 1, 0 );
-  
-  point_set3D( &(view.vrp), 160, 140, 120 );
-  vector_set( &(view.vpn), -20, -20, -20 );
-  vector_set( &(view.vup), 0, 1, 0 );
+  Lighting *light;
 
-  // point_set3D( &(view.vrp), 120, 70, 100 );
-  // vector_set( &(view.vpn), -1, -10, -10 );
-  // vector_set( &(view.vup), 0, 1, 0 );
-  view.d = 1.5;
+	color_set( &White, 1.0, 1.0, 1.0 );
+	color_set( &Grey, 0.6, 0.62, 0.64 );
+	color_set( &DkGrey, 0.1, 0.1, 0.1 );
+
+  // initialize the image
+  src = image_create(rows, cols);
+
+  // initialize matrices
+  matrix_identity(&GTM);
+  matrix_identity(&VTM);
+
+  // set the View parameters
+  point_set3D(&(view.vrp), 5, 5, -7.0);
+  vector_set(&(view.vpn), -5, -5, 7);
+  vector_set(&(view.vup), 0.0, 1.0, 0.0);
+  view.d = 2.0;
   view.du = 1.6;
-  view.dv = 0.9;
-  view.f = 1;
-  view.b = 100;
-  view.screenx = 1280;
-  view.screeny = 720;
+  view.dv = .9;
+  view.f = 0.0;
+  view.b = 15;
+  view.screenx = cols;
+  view.screeny = rows;
+  matrix_setView3D(&VTM, &view);
 
+  // print out VTM
+  printf("Final VTM: \n");
+  matrix_print(&VTM, stdout);
 
-  matrix_setView3D( &vtm, &view );
-  matrix_identity( &gtm );
+  // make a simple cube module
+  cube = module_create();
+  module_scale( cube, 1.5, 0.5, 0.5 );
 
-  double leg_length = 7.0;
-  legs = module_create();
-  module_scale(legs, 3, 3, leg_length);
-  module_translate(legs, 20, 20, 20);
-  module_cube(legs, 1);
-  module_translate(legs, 4, 0, 0);
-  module_cube(legs, 1);
+  // this would color the cube in ShadeConstant mode
+  module_color( cube, &White );
 
-  double body_height = 5.0;
-  body = module_create();
-  module_scale(body, 8, 5, body_height);
-  module_translate(body, 23, 21, 20+leg_length);
-  module_cube(body, 1);
-  module_identity(body);
-  module_scale(body, 2, 2, 6);
-  module_translate(body, 18, 20, 20+leg_length-1);
-  module_cube(body, 1);
-  module_translate(body, 9, 0, 0);
-  module_cube(body, 1);
+	// set body and surface color values for ShadeGouraud mode
+	module_bodyColor( cube, &White );
+	module_surfaceColor( cube, &DkGrey );
 
-  head = module_create();
-  module_scale(head, 4, 4, 4);
-  module_translate(head, 23, 22.5, 20+leg_length+body_height+1);
-  module_cube(head, 1);
+  // the example cube is blue (Y/-Y), red (Z/-Z), yellow (X/-X)
+  // these colors should be the body colors
+  module_sphere( cube, 5);
 
-  creature = module_create();
-  module_module(creature, legs);
-  module_module(creature, body);
-  module_module(creature, head);
+  // manually add a light source to the Lighting structure
+  // put it in the same place as the eye in world space
+  light = lighting_create();
+  lighting_add( light, LightPoint, &White, NULL, &(view.vrp), 0, 0 );
 
-  formation = module_create();
-  module_module(formation, creature);
-  module_translate(formation, 15, 0, 0);
-  module_module(formation, creature);
-  module_translate(formation, -15, 0, 0);
-  module_rotateZ(formation, 0, 1);
-  module_translate(formation, 25, -7.5, 0);
-  module_module(formation, creature);
-
-  scene = module_create();
-  module_translate(scene, -80, 20, 0 );
-  module_module(scene, formation);
-  module_translate(scene, 80, 20, 0);
-  module_module(scene, formation);
-  module_translate(scene, 0, 0, 0);
-  module_module(scene, formation);
-
-  src = image_create( 360, 640 );
+  // set the shading to Gouraud
   ds = drawstate_create();
-  ds->shade = ShadeDepth;
-  ds->color = blue;
-  
-  // draw into the scene
-  module_draw( scene, &vtm, &gtm, ds, NULL, src );
+	
+  point_copy(&(ds->viewer), &(view.vrp));
+	ds->shade = ShadeGouraud;
+	//	ds->shade = ShadeFlat;
 
-  // write out the scene
-  image_write( src, "../images/portfolio.ppm" );
+  matrix_identity(&GTM);
 
-  // cleanup
-  module_delete(scene);
-  module_delete(formation);
-  module_delete(creature);
-  module_delete(legs);
-  free(ds);
+  // draw the cube
+  int max_frame = 20;
+	for(int frame=0;frame<max_frame;frame++) {
+		char buffer[256];
+		
+		matrix_rotateY(&GTM, cos(M_PI/max_frame), sin(M_PI/max_frame) );
+		module_draw(cube, &VTM, &GTM, ds, light, src);
+
+		sprintf(buffer, "../images/bez3d-frame%03d.ppm", frame);
+		image_write(src, buffer);
+		image_reset(src);
+	}
+  // free stuff here
+  module_delete( cube );
   image_free( src );
+  
 
   return(0);
 }

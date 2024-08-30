@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
   // the example cube is blue (Y/-Y), red (Z/-Z), yellow (X/-X)
   // these colors should be the body colors
-  module_cube( cube, 1);
+  module_sphere( cube, 5);
 
   // manually add a light source to the Lighting structure
   // put it in the same place as the eye in world space
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
   module_draw(cube, &VTM, &GTM, ds, light, src);
 
   // write out the image
-  image_write(src, "../images/test9a.ppm");
+  image_write(src, "../images/test10a.ppm");
 
   // free stuff here
   module_delete( cube );

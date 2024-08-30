@@ -57,22 +57,13 @@ all:
 
 
 # put the specific executable rules here
-test9a: $(ODIR)/test9a.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
-
-test9b: $(ODIR)/test9b.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
-
-test9c: $(ODIR)/test9c.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
-
-test9d: $(ODIR)/test9d.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
-
-cube: $(ODIR)/cube.o
+test10a: $(ODIR)/test10a.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 portfolio: $(ODIR)/portfolio.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+cube: $(ODIR)/cube.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 testLighting_shading: $(ODIR)/testLighting_shading.o
